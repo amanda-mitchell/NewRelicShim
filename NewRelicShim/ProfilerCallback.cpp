@@ -1,5 +1,5 @@
 #undef _WIN32_WINNT
-#define _WIN32_WINNT    0x0403
+#define _WIN32_WINNT	0x0403
 
 #include <windows.h>
 #include <share.h>
@@ -11,14 +11,14 @@
 #include "ProfilerInfoShim.h"
 
 ProfilerCallback::ProfilerCallback() :
-    m_refCount(0),
-    m_stream(NULL),
+	m_refCount(0),
+	m_stream(NULL),
 	m_shimmedCallback(NULL),
 	m_profilerInfo(NULL)
 {
-    HRESULT hr = S_OK;
-    
-    DWORD dwProcessId = GetCurrentProcessId();
+	HRESULT hr = S_OK;
+	
+	DWORD dwProcessId = GetCurrentProcessId();
 	char fileName[256];
 	sprintf_s(fileName, 256, "c:\\%d.log", dwProcessId);
 	m_stream = _fsopen(fileName, "w+", _SH_DENYWR);
@@ -29,12 +29,12 @@ ProfilerCallback::ProfilerCallback() :
 
 ProfilerCallback::~ProfilerCallback()
 {
-    if (m_stream != NULL)
-    {
+	if (m_stream != NULL)
+	{
 		fprintf(m_stream, "Destroying callback.\n");
-        fclose(m_stream);
-        m_stream = NULL;
-    }
+		fclose(m_stream);
+		m_stream = NULL;
+	}
 
 	if (m_profilerInfo != NULL)
 	{
@@ -51,64 +51,64 @@ ProfilerCallback::~ProfilerCallback()
 
 ULONG ProfilerCallback::AddRef() 
 {
-    return InterlockedIncrement(&m_refCount);
+	return InterlockedIncrement(&m_refCount);
 }
 
 ULONG ProfilerCallback::Release() 
 {
-    ULONG refCount = InterlockedDecrement(&m_refCount);
-    if (refCount == 0)
-        delete this;
+	ULONG refCount = InterlockedDecrement(&m_refCount);
+	if (refCount == 0)
+		delete this;
 
-    return refCount;
+	return refCount;
 }
 
 HRESULT ProfilerCallback::QueryInterface(REFIID riid, void **ppInterface)
 {
-    if (riid == IID_IUnknown)
-        *ppInterface = static_cast<IUnknown *>(this); 
-    else if (riid == IID_ICorProfilerCallback)
-        *ppInterface = static_cast<ICorProfilerCallback *>(this);
-    else if (riid == IID_ICorProfilerCallback2)
-        *ppInterface = static_cast<ICorProfilerCallback2 *>(this);
+	if (riid == IID_IUnknown)
+		*ppInterface = static_cast<IUnknown *>(this); 
+	else if (riid == IID_ICorProfilerCallback)
+		*ppInterface = static_cast<ICorProfilerCallback *>(this);
+	else if (riid == IID_ICorProfilerCallback2)
+		*ppInterface = static_cast<ICorProfilerCallback2 *>(this);
 	else if (riid == IID_ICorProfilerCallback3)
 		*ppInterface = static_cast<ICorProfilerCallback3 *>(this);
-    else
-        *ppInterface = NULL;
+	else
+		*ppInterface = NULL;
 
 	if (*ppInterface == NULL)
 		return E_NOINTERFACE;
 
-    reinterpret_cast<IUnknown *>(*ppInterface)->AddRef();
+	reinterpret_cast<IUnknown *>(*ppInterface)->AddRef();
 
-    return S_OK;
+	return S_OK;
 }
 
 HRESULT ProfilerCallback::CreateObject(REFIID riid, void **ppInterface)
 {
-    HRESULT hr = E_NOINTERFACE;
+	HRESULT hr = E_NOINTERFACE;
 
-    *ppInterface = NULL;
-    if ((riid == IID_IUnknown)
+	*ppInterface = NULL;
+	if ((riid == IID_IUnknown)
 		|| (riid == IID_ICorProfilerCallback3)
-        || (riid == IID_ICorProfilerCallback2) 
-        || (riid == IID_ICorProfilerCallback))
-    {           
-        ProfilerCallback *pProfilerCallback = new ProfilerCallback();
-        if (pProfilerCallback != NULL)
-        {
-            hr = S_OK;
-            
-            pProfilerCallback->AddRef();
-            *ppInterface = static_cast<ICorProfilerCallback *>(pProfilerCallback);
-        }
-        else
+		|| (riid == IID_ICorProfilerCallback2) 
+		|| (riid == IID_ICorProfilerCallback))
+	{		   
+		ProfilerCallback *pProfilerCallback = new ProfilerCallback();
+		if (pProfilerCallback != NULL)
 		{
-            hr = E_OUTOFMEMORY;
+			hr = S_OK;
+			
+			pProfilerCallback->AddRef();
+			*ppInterface = static_cast<ICorProfilerCallback *>(pProfilerCallback);
 		}
-    }    
+		else
+		{
+			hr = E_OUTOFMEMORY;
+		}
+	}	
 
-    return hr;
+	return hr;
 }
 
 HRESULT ProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk)
@@ -129,7 +129,7 @@ HRESULT ProfilerCallback::Shutdown()
 {
 	fprintf(m_stream, "Profiler Shutdown\n");
 	fflush(m_stream);
-    return m_shimmedCallback->Shutdown();
+	return m_shimmedCallback->Shutdown();
 }
 
 HRESULT ProfilerCallback::ModuleLoadFinished(ModuleID moduleID, HRESULT hrStatus)
@@ -148,7 +148,7 @@ HRESULT ProfilerCallback::JITCompilationStarted(FunctionID functionID, BOOL fIsS
 
 HRESULT ProfilerCallback::JITCachedFunctionSearchStarted(FunctionID functionID, BOOL *pbUseCachedFunction)
 {
-    fprintf(m_stream, "Profiler JITCachedFunctionSearchStarted\n");
+	fprintf(m_stream, "Profiler JITCachedFunctionSearchStarted\n");
 	fflush(m_stream);
 	return m_shimmedCallback->JITCachedFunctionSearchStarted(functionID, pbUseCachedFunction);
 }
@@ -160,7 +160,7 @@ HRESULT ProfilerCallback::JITCompilationFinished(FunctionID functionID, HRESULT 
 
 HRESULT ProfilerCallback::JITCachedFunctionSearchFinished(FunctionID functionID, COR_PRF_JIT_CACHE result)
 {
-    fprintf(m_stream, "Profiler JITCachedFunctionSearchFinished\n");
+	fprintf(m_stream, "Profiler JITCachedFunctionSearchFinished\n");
 	fflush(m_stream);
 	return m_shimmedCallback->JITCachedFunctionSearchFinished(functionID, result);
 }
@@ -169,164 +169,164 @@ HRESULT ProfilerCallback::ExceptionUnwindFunctionEnter(FunctionID functionID)
 {
 	fprintf(m_stream, "Profiler ExceptionUnwindFunctionEnter\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ExceptionUnwindFunctionEnter(functionID);
+	return m_shimmedCallback->ExceptionUnwindFunctionEnter(functionID);
 }
 
 HRESULT ProfilerCallback::ExceptionUnwindFunctionLeave()
 {
 	fprintf(m_stream, "Profiler ExceptionUnwindFunctionLeave\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ExceptionUnwindFunctionLeave();
+	return m_shimmedCallback->ExceptionUnwindFunctionLeave();
 }
 
 HRESULT ProfilerCallback::ThreadCreated(ThreadID threadID)
 {
 	fprintf(m_stream, "Profiler ThreadCreated\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ThreadCreated(threadID);
+	return m_shimmedCallback->ThreadCreated(threadID);
 }
 
 HRESULT ProfilerCallback::ThreadDestroyed(ThreadID threadID)
 {
 	fprintf(m_stream, "Profiler ThreadDestroyed\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ThreadDestroyed(threadID);
+	return m_shimmedCallback->ThreadDestroyed(threadID);
 }
 
 HRESULT ProfilerCallback::ThreadAssignedToOSThread(ThreadID managedThreadID, DWORD osThreadID) 
 {
 	fprintf(m_stream, "Profiler ThreadAssignedToOSThread\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ThreadAssignedToOSThread(managedThreadID, osThreadID);
+	return m_shimmedCallback->ThreadAssignedToOSThread(managedThreadID, osThreadID);
 }
 
 HRESULT ProfilerCallback::UnmanagedToManagedTransition(FunctionID functionID, COR_PRF_TRANSITION_REASON reason)
 {
 	fprintf(m_stream, "Profiler UnmanagedToManagedTransition\n");
 	fflush(m_stream);
-    return m_shimmedCallback->UnmanagedToManagedTransition(functionID, reason);
+	return m_shimmedCallback->UnmanagedToManagedTransition(functionID, reason);
 }
 
 HRESULT ProfilerCallback::ManagedToUnmanagedTransition(FunctionID functionID, COR_PRF_TRANSITION_REASON reason)
 {
 	fprintf(m_stream, "Profiler ManagedToUnmanagedTransition\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ManagedToUnmanagedTransition(functionID, reason);
+	return m_shimmedCallback->ManagedToUnmanagedTransition(functionID, reason);
 }
 
 HRESULT ProfilerCallback::ObjectAllocated(ObjectID objectID, ClassID classID)
 {
 	fprintf(m_stream, "Profiler ObjectAllocated\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ObjectAllocated(objectID, classID);
+	return m_shimmedCallback->ObjectAllocated(objectID, classID);
 }
 
 HRESULT ProfilerCallback::ObjectReferences(ObjectID objectID, ClassID classID, ULONG objectRefs, ObjectID objectRefIDs[])
 {
 	fprintf(m_stream, "Profiler ObjectReferences\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ObjectReferences(objectID, classID, objectRefs, objectRefIDs);
+	return m_shimmedCallback->ObjectReferences(objectID, classID, objectRefs, objectRefIDs);
 }
 
 HRESULT ProfilerCallback::RootReferences(ULONG rootRefs, ObjectID rootRefIDs[])
 {
 	fprintf(m_stream, "Profiler RootReferences\n");
 	fflush(m_stream);
-    return m_shimmedCallback->RootReferences(rootRefs, rootRefIDs);
+	return m_shimmedCallback->RootReferences(rootRefs, rootRefIDs);
 }
 
 HRESULT ProfilerCallback::RuntimeSuspendStarted(COR_PRF_SUSPEND_REASON suspendReason)
 {
 	fprintf(m_stream, "Profiler RuntimeSuspendStarted\n");
 	fflush(m_stream);
-    return m_shimmedCallback->RuntimeSuspendStarted(suspendReason);
+	return m_shimmedCallback->RuntimeSuspendStarted(suspendReason);
 }
 
 HRESULT ProfilerCallback::RuntimeResumeFinished()
 {
 	fprintf(m_stream, "Profiler RuntimeResumeFinished\n");
 	fflush(m_stream);
-    return m_shimmedCallback->RuntimeResumeFinished();
+	return m_shimmedCallback->RuntimeResumeFinished();
 }
 
 HRESULT ProfilerCallback::AppDomainCreationStarted(AppDomainID appDomainID)
 {
 	fprintf(m_stream, "Profiler AppDomainCreationStarted\n");
 	fflush(m_stream);
-    return m_shimmedCallback->AppDomainCreationStarted(appDomainID);
+	return m_shimmedCallback->AppDomainCreationStarted(appDomainID);
 }
 
 HRESULT ProfilerCallback::AppDomainCreationFinished(AppDomainID appDomainID, HRESULT hrStatus)
 {
 	fprintf(m_stream, "Profiler AppDomainCreationFinished\n");
 	fflush(m_stream);
-    return m_shimmedCallback->AppDomainCreationFinished(appDomainID, hrStatus);
+	return m_shimmedCallback->AppDomainCreationFinished(appDomainID, hrStatus);
 }
 
 HRESULT ProfilerCallback::AppDomainShutdownStarted(AppDomainID appDomainID)
 {
 	fprintf(m_stream, "Profiler AppDomainShutdownStarted\n");
 	fflush(m_stream);
-    return m_shimmedCallback->AppDomainShutdownStarted(appDomainID);
+	return m_shimmedCallback->AppDomainShutdownStarted(appDomainID);
 }
 
 HRESULT ProfilerCallback::AppDomainShutdownFinished(AppDomainID appDomainID, HRESULT hrStatus)
 {
 	fprintf(m_stream, "Profiler AppDomainShutdownFinished\n");
 	fflush(m_stream);
-    return m_shimmedCallback->AppDomainShutdownFinished(appDomainID, hrStatus);
+	return m_shimmedCallback->AppDomainShutdownFinished(appDomainID, hrStatus);
 }
 
 HRESULT ProfilerCallback::AssemblyLoadStarted(AssemblyID assemblyId)
 {
 	fprintf(m_stream, "Profiler AssemblyLoadStarted\n");
 	fflush(m_stream);
-    return m_shimmedCallback->AssemblyLoadStarted(assemblyId);
+	return m_shimmedCallback->AssemblyLoadStarted(assemblyId);
 }
 
 HRESULT ProfilerCallback::AssemblyLoadFinished(AssemblyID assemblyId, HRESULT hrStatus)
 {
 	fprintf(m_stream, "Profiler AssemblyLoadFinished\n");
 	fflush(m_stream);
-    return m_shimmedCallback->AssemblyLoadFinished(assemblyId, hrStatus);
+	return m_shimmedCallback->AssemblyLoadFinished(assemblyId, hrStatus);
 }
 
 HRESULT ProfilerCallback::AssemblyUnloadStarted(AssemblyID assemblyID)
 {
 	fprintf(m_stream, "Profiler AssemblyUnloadStarted\n");
 	fflush(m_stream);
-    return m_shimmedCallback->AssemblyUnloadStarted(assemblyID);
+	return m_shimmedCallback->AssemblyUnloadStarted(assemblyID);
 }
 
 HRESULT ProfilerCallback::AssemblyUnloadFinished(AssemblyID assemblyID, HRESULT hrStatus)
 {
 	fprintf(m_stream, "Profiler AssemblyUnloadFinished\n");
 	fflush(m_stream);
-    return m_shimmedCallback->AssemblyUnloadFinished(assemblyID, hrStatus);
+	return m_shimmedCallback->AssemblyUnloadFinished(assemblyID, hrStatus);
 }
 
 HRESULT ProfilerCallback::ModuleLoadStarted(ModuleID moduleID)
 {
-    return m_shimmedCallback->ModuleLoadStarted(moduleID);
+	return m_shimmedCallback->ModuleLoadStarted(moduleID);
 }
 
 HRESULT ProfilerCallback::ModuleUnloadStarted(ModuleID moduleID)
 {
 	fprintf(m_stream, "Profiler ModuleUnloadStarted\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ModuleUnloadStarted(moduleID);
+	return m_shimmedCallback->ModuleUnloadStarted(moduleID);
 }
 
 HRESULT ProfilerCallback::ModuleUnloadFinished(ModuleID moduleID, HRESULT hrStatus)
 {
 	fprintf(m_stream, "Profiler ModuleUnloadFinished\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ModuleUnloadFinished(moduleID, hrStatus);
+	return m_shimmedCallback->ModuleUnloadFinished(moduleID, hrStatus);
 }
 
 HRESULT ProfilerCallback::ModuleAttachedToAssembly(ModuleID moduleID, AssemblyID assemblyID)
 {
-    HRESULT result = m_shimmedCallback->ModuleAttachedToAssembly(moduleID, assemblyID);
+	HRESULT result = m_shimmedCallback->ModuleAttachedToAssembly(moduleID, assemblyID);
 	if (result != S_OK)
 		return result;
 
@@ -383,42 +383,42 @@ HRESULT ProfilerCallback::ClassLoadStarted(ClassID classID)
 {
 	fprintf(m_stream, "Profiler ClassLoadStarted\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ClassLoadStarted(classID);
+	return m_shimmedCallback->ClassLoadStarted(classID);
 }
 
 HRESULT ProfilerCallback::ClassLoadFinished(ClassID classID, HRESULT hrStatus)
 {
 	fprintf(m_stream, "Profiler ClassLoadFinished\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ClassLoadFinished(classID, hrStatus);
+	return m_shimmedCallback->ClassLoadFinished(classID, hrStatus);
 }
 
 HRESULT ProfilerCallback::ClassUnloadStarted(ClassID classID)
 {
 	fprintf(m_stream, "Profiler ClassUnloadStarted\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ClassUnloadStarted(classID);
+	return m_shimmedCallback->ClassUnloadStarted(classID);
 }
 
 HRESULT ProfilerCallback::ClassUnloadFinished(ClassID classID, HRESULT hrStatus)
 {
 	fprintf(m_stream, "Profiler ClassUnloadFinished\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ClassUnloadFinished(classID, hrStatus);
+	return m_shimmedCallback->ClassUnloadFinished(classID, hrStatus);
 }
 
 HRESULT ProfilerCallback::FunctionUnloadStarted(FunctionID functionID)
 {
 	fprintf(m_stream, "Profiler FunctionUnloadStarted\n");
 	fflush(m_stream);
-    return m_shimmedCallback->FunctionUnloadStarted(functionID);
+	return m_shimmedCallback->FunctionUnloadStarted(functionID);
 }
 
 HRESULT ProfilerCallback::JITFunctionPitched(FunctionID functionID)
 {
 	fprintf(m_stream, "Profiler JITFunctionPitched\n");
 	fflush(m_stream);
-    return m_shimmedCallback->JITFunctionPitched(functionID);
+	return m_shimmedCallback->JITFunctionPitched(functionID);
 }
 
 HRESULT ProfilerCallback::JITInlining(FunctionID callerID, FunctionID calleeID, BOOL *pfShouldInline)
@@ -430,21 +430,21 @@ HRESULT ProfilerCallback::RemotingClientInvocationStarted()
 {
 	fprintf(m_stream, "Profiler RemotingClientInvocationStarted\n");
 	fflush(m_stream);
-    return m_shimmedCallback->RemotingClientInvocationStarted();
+	return m_shimmedCallback->RemotingClientInvocationStarted();
 }
 
 HRESULT ProfilerCallback::RemotingClientSendingMessage(GUID *pCookie, BOOL fIsAsync)
 {
 	fprintf(m_stream, "Profiler RemotingClientSendingMessage\n");
 	fflush(m_stream);
-    return m_shimmedCallback->RemotingClientSendingMessage(pCookie, fIsAsync);
+	return m_shimmedCallback->RemotingClientSendingMessage(pCookie, fIsAsync);
 }
 
 HRESULT ProfilerCallback::RemotingClientReceivingReply(GUID *pCookie, BOOL fIsAsync)
 {
 	fprintf(m_stream, "Profiler RemotingClientReceivingReply\n");
 	fflush(m_stream);
-    return m_shimmedCallback->RemotingClientReceivingReply(pCookie, fIsAsync);
+	return m_shimmedCallback->RemotingClientReceivingReply(pCookie, fIsAsync);
 }
 
 HRESULT ProfilerCallback::RemotingClientInvocationFinished()
@@ -458,224 +458,224 @@ HRESULT ProfilerCallback::RemotingServerReceivingMessage(GUID *pCookie, BOOL fIs
 {
 	fprintf(m_stream, "Profiler RemotingServerReceivingMessage\n");
 	fflush(m_stream);
-    return m_shimmedCallback->RemotingServerReceivingMessage(pCookie, fIsAsync);
+	return m_shimmedCallback->RemotingServerReceivingMessage(pCookie, fIsAsync);
 }
 
 HRESULT ProfilerCallback::RemotingServerInvocationStarted()
 {
 	fprintf(m_stream, "Profiler RemotingServerInvocationStarted\n");
 	fflush(m_stream);
-    return m_shimmedCallback->RemotingServerInvocationStarted();
+	return m_shimmedCallback->RemotingServerInvocationStarted();
 }
 
 HRESULT ProfilerCallback::RemotingServerInvocationReturned()
 {
 	fprintf(m_stream, "Profiler RemotingServerInvocationReturned\n");
 	fflush(m_stream);
-    return m_shimmedCallback->RemotingServerInvocationReturned();
+	return m_shimmedCallback->RemotingServerInvocationReturned();
 }
 
 HRESULT ProfilerCallback::RemotingServerSendingReply(GUID *pCookie, BOOL fIsAsync)
 {
 	fprintf(m_stream, "Profiler RemotingServerSendingReply\n");
 	fflush(m_stream);
-    return m_shimmedCallback->RemotingServerSendingReply(pCookie, fIsAsync);
+	return m_shimmedCallback->RemotingServerSendingReply(pCookie, fIsAsync);
 }
 
 HRESULT ProfilerCallback::RuntimeSuspendFinished()
 {
 	fprintf(m_stream, "Profiler RuntimeSuspendFinished\n");
 	fflush(m_stream);
-    return m_shimmedCallback->RuntimeSuspendFinished();
+	return m_shimmedCallback->RuntimeSuspendFinished();
 }
 
 HRESULT ProfilerCallback::RuntimeSuspendAborted()
 {
 	fprintf(m_stream, "Profiler RuntimeSuspendAborted\n");
 	fflush(m_stream);
-    return m_shimmedCallback->RuntimeSuspendAborted();
+	return m_shimmedCallback->RuntimeSuspendAborted();
 }
 
 HRESULT ProfilerCallback::RuntimeResumeStarted()
 {
 	fprintf(m_stream, "Profiler RuntimeResumeStarted\n");
 	fflush(m_stream);
-    return m_shimmedCallback->RuntimeResumeStarted();
+	return m_shimmedCallback->RuntimeResumeStarted();
 }
 
 HRESULT ProfilerCallback::RuntimeThreadSuspended(ThreadID threadID)
 {
 	fprintf(m_stream, "Profiler RuntimeThreadSuspended\n");
 	fflush(m_stream);
-    return m_shimmedCallback->RuntimeThreadSuspended(threadID);
+	return m_shimmedCallback->RuntimeThreadSuspended(threadID);
 }
 
 HRESULT ProfilerCallback::RuntimeThreadResumed(ThreadID threadID)
 {
 	fprintf(m_stream, "Profiler RuntimeThreadResumed\n");
 	fflush(m_stream);
-    return m_shimmedCallback->RuntimeThreadResumed(threadID);
+	return m_shimmedCallback->RuntimeThreadResumed(threadID);
 }
 
 HRESULT ProfilerCallback::MovedReferences(ULONG cmovedObjectIDRanges, ObjectID oldObjectIDRangeStart[], ObjectID newObjectIDRangeStart[], ULONG cObjectIDRangeLength[])
 {
 	fprintf(m_stream, "Profiler MovedReferences\n");
 	fflush(m_stream);
-    return m_shimmedCallback->MovedReferences(cmovedObjectIDRanges, oldObjectIDRangeStart, newObjectIDRangeStart, cObjectIDRangeLength);
+	return m_shimmedCallback->MovedReferences(cmovedObjectIDRanges, oldObjectIDRangeStart, newObjectIDRangeStart, cObjectIDRangeLength);
 }
 
 HRESULT ProfilerCallback::SurvivingReferences(ULONG cmovedObjectIDRanges, ObjectID objectIDRangeStart[], ULONG cObjectIDRangeLength[])
 {
 	fprintf(m_stream, "Profiler SurvivingReferences\n");
 	fflush(m_stream);
-    return m_shimmedCallback->SurvivingReferences(cmovedObjectIDRanges, objectIDRangeStart, cObjectIDRangeLength);
+	return m_shimmedCallback->SurvivingReferences(cmovedObjectIDRanges, objectIDRangeStart, cObjectIDRangeLength);
 }
 
 HRESULT ProfilerCallback::ObjectsAllocatedByClass(ULONG classCount, ClassID classIDs[], ULONG objects[])
 {
 	fprintf(m_stream, "Profiler ObjectsAllocatedByClass\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ObjectsAllocatedByClass(classCount, classIDs, objects);
+	return m_shimmedCallback->ObjectsAllocatedByClass(classCount, classIDs, objects);
 }
 
 HRESULT ProfilerCallback::ExceptionThrown(ObjectID thrownObjectID)
 {
 	fprintf(m_stream, "Profiler ExceptionThrown\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ExceptionThrown(thrownObjectID);
+	return m_shimmedCallback->ExceptionThrown(thrownObjectID);
 }
 
 HRESULT ProfilerCallback::ExceptionSearchFunctionEnter(FunctionID functionID)
 {
 	fprintf(m_stream, "Profiler ExceptionSearchFunctionEnter\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ExceptionSearchFunctionEnter(functionID);
+	return m_shimmedCallback->ExceptionSearchFunctionEnter(functionID);
 }
 
 HRESULT ProfilerCallback::ExceptionSearchFunctionLeave()
 {
 	fprintf(m_stream, "Profiler ExceptionSearchFunctionLeave\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ExceptionSearchFunctionLeave();
+	return m_shimmedCallback->ExceptionSearchFunctionLeave();
 }
 
 HRESULT ProfilerCallback::ExceptionSearchFilterEnter(FunctionID functionID)
 {
 	fprintf(m_stream, "Profiler ExceptionSearchFilterEnter\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ExceptionSearchFilterEnter(functionID);
+	return m_shimmedCallback->ExceptionSearchFilterEnter(functionID);
 }
 
 HRESULT ProfilerCallback::ExceptionSearchFilterLeave()
 {
 	fprintf(m_stream, "Profiler ExceptionSearchFilterLeave\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ExceptionSearchFilterLeave();
+	return m_shimmedCallback->ExceptionSearchFilterLeave();
 }
 
 HRESULT ProfilerCallback::ExceptionSearchCatcherFound(FunctionID functionID)
 {
 	fprintf(m_stream, "Profiler ExceptionSearchCatcherFound\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ExceptionSearchCatcherFound(functionID);
+	return m_shimmedCallback->ExceptionSearchCatcherFound(functionID);
 }
 
 HRESULT ProfilerCallback::ExceptionCLRCatcherFound()
 {
 	fprintf(m_stream, "Profiler ExceptionCLRCatcherFound\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ExceptionCLRCatcherFound();
+	return m_shimmedCallback->ExceptionCLRCatcherFound();
 }
 
 HRESULT ProfilerCallback::ExceptionCLRCatcherExecute()
 {
 	fprintf(m_stream, "Profiler ExceptionCLRCatcherExecute\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ExceptionCLRCatcherExecute();
+	return m_shimmedCallback->ExceptionCLRCatcherExecute();
 }
 
 HRESULT ProfilerCallback::ExceptionOSHandlerEnter(FunctionID functionID)
 {
 	fprintf(m_stream, "Profiler ExceptionOSHandlerEnter\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ExceptionOSHandlerEnter(functionID);
+	return m_shimmedCallback->ExceptionOSHandlerEnter(functionID);
 }
 
 HRESULT ProfilerCallback::ExceptionOSHandlerLeave(FunctionID functionID)
 {
 	fprintf(m_stream, "Profiler ExceptionOSHandlerLeave\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ExceptionOSHandlerLeave(functionID);
+	return m_shimmedCallback->ExceptionOSHandlerLeave(functionID);
 }
 
 HRESULT ProfilerCallback::ExceptionUnwindFinallyEnter(FunctionID functionID)
 {
 	fprintf(m_stream, "Profiler ExceptionUnwindFinallyEnter\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ExceptionUnwindFinallyEnter(functionID);
+	return m_shimmedCallback->ExceptionUnwindFinallyEnter(functionID);
 }
 
 HRESULT ProfilerCallback::ExceptionUnwindFinallyLeave()
 {
 	fprintf(m_stream, "Profiler ExceptionUnwindFinallyLeave\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ExceptionUnwindFinallyLeave();
+	return m_shimmedCallback->ExceptionUnwindFinallyLeave();
 }
 
 HRESULT ProfilerCallback::ExceptionCatcherEnter(FunctionID functionID, ObjectID objectID)
 {
 	fprintf(m_stream, "Profiler ExceptionCatcherEnter\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ExceptionCatcherEnter(functionID, objectID);
+	return m_shimmedCallback->ExceptionCatcherEnter(functionID, objectID);
 }
 
 HRESULT ProfilerCallback::ExceptionCatcherLeave()
 {
 	fprintf(m_stream, "Profiler ExceptionCatcherLeave\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ExceptionCatcherLeave();
+	return m_shimmedCallback->ExceptionCatcherLeave();
 }
 
 HRESULT ProfilerCallback::COMClassicVTableCreated(ClassID wrappedClassID, REFGUID implementedIID, void *pVTable, ULONG cSlots)
 {
 	fprintf(m_stream, "Profiler COMClassicVTableCreated\n");
 	fflush(m_stream);
-    return m_shimmedCallback->COMClassicVTableCreated(wrappedClassID, implementedIID, pVTable, cSlots);
+	return m_shimmedCallback->COMClassicVTableCreated(wrappedClassID, implementedIID, pVTable, cSlots);
 }
 
 HRESULT ProfilerCallback::COMClassicVTableDestroyed(ClassID wrappedClassID, REFGUID implementedIID, void *pVTable)
 {
 	fprintf(m_stream, "Profiler COMClassicVTableDestroyed\n");
 	fflush(m_stream);
-    return m_shimmedCallback->COMClassicVTableDestroyed(wrappedClassID, implementedIID, pVTable);
+	return m_shimmedCallback->COMClassicVTableDestroyed(wrappedClassID, implementedIID, pVTable);
 }
 
 HRESULT ProfilerCallback::ThreadNameChanged(ThreadID threadId, ULONG cchName, WCHAR name[  ])
 {
 	fprintf(m_stream, "Profiler ThreadNameChanged\n");
 	fflush(m_stream);
-    return m_shimmedCallback->ThreadNameChanged(threadId, cchName, name);
+	return m_shimmedCallback->ThreadNameChanged(threadId, cchName, name);
 }
 
 HRESULT ProfilerCallback::FinalizeableObjectQueued(DWORD finalizerFlags, ObjectID objectID)
 {
 	fprintf(m_stream, "Profiler FinalizeableObjectQueued\n");
 	fflush(m_stream);
-    return m_shimmedCallback->FinalizeableObjectQueued(finalizerFlags, objectID);
+	return m_shimmedCallback->FinalizeableObjectQueued(finalizerFlags, objectID);
 }
 
 HRESULT ProfilerCallback::RootReferences2(ULONG cRootRefs, ObjectID rootRefIds[  ], COR_PRF_GC_ROOT_KIND rootKinds[  ], COR_PRF_GC_ROOT_FLAGS rootFlags[  ], UINT_PTR rootIds[  ])
 {
 	fprintf(m_stream, "Profiler RootReferences2\n");
 	fflush(m_stream);
-    return m_shimmedCallback->RootReferences2(cRootRefs, rootRefIds, rootKinds, rootFlags, rootIds);
+	return m_shimmedCallback->RootReferences2(cRootRefs, rootRefIds, rootKinds, rootFlags, rootIds);
 }
 
 HRESULT ProfilerCallback::HandleCreated(UINT_PTR handleId, ObjectID initialObjectId)
 {
 	fprintf(m_stream, "Profiler HandleCreated\n");
 	fflush(m_stream);
-    return m_shimmedCallback->HandleCreated(handleId, initialObjectId);
+	return m_shimmedCallback->HandleCreated(handleId, initialObjectId);
 }
 
 HRESULT ProfilerCallback::HandleDestroyed(UINT_PTR handleId)
@@ -689,14 +689,14 @@ HRESULT ProfilerCallback::GarbageCollectionStarted(int cGenerations, BOOL genera
 {
 	fprintf(m_stream, "Profiler GarbageCollectionStarted\n");
 	fflush(m_stream);
-    return m_shimmedCallback->GarbageCollectionStarted(cGenerations, generationCollected, reason);
+	return m_shimmedCallback->GarbageCollectionStarted(cGenerations, generationCollected, reason);
 }
 
 HRESULT  ProfilerCallback::GarbageCollectionFinished()
 {
 	fprintf(m_stream, "Profiler GarbageCollectionFinished\n");
 	fflush(m_stream);
-    return m_shimmedCallback->GarbageCollectionFinished();
+	return m_shimmedCallback->GarbageCollectionFinished();
 }
 
 HRESULT ProfilerCallback::InitializeForAttach(IUnknown *pCorProfilerInfoUnk, void *pvClientData, UINT cbClientData)
@@ -712,7 +712,7 @@ HRESULT ProfilerCallback::ProfilerAttachComplete(void)
 	fflush(m_stream);
 	return m_shimmedCallback->ProfilerAttachComplete();
 }
-        
+		
 HRESULT ProfilerCallback::ProfilerDetachSucceeded(void)
 {
 	fprintf(m_stream, "Profiler ProfilerDetachSucceeded\n");
